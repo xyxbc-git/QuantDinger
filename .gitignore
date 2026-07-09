@@ -23,6 +23,10 @@
 .env.local
 .env.*.local
 backend_api_python/.env
+# 注意：backend.env 当前仍被 git 追踪（历史提交 2e4b95f 已含真实 SECRET_KEY），
+# 本行只防止未来新 env 文件入库；解除追踪需 git rm --cached backend.env（由用户决策）
+backend.env
+*.env
 
 # ========================
 # IDE & OS
