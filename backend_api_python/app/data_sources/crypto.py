@@ -108,10 +108,18 @@ class CryptoDataSource(BaseDataSource):
     COMMON_QUOTES = ['USDT', 'USD', 'BTC', 'ETH', 'BUSD', 'USDC', 'BNB', 'EUR', 'GBP']
     
     def __init__(self):
-        self._scoped_exchange_id = ""
-        self._scoped_market_type = "spot"
         default_ex = (CCXTConfig.DEFAULT_EXCHANGE or "binance").strip().lower()
-        self._init_ccxt_exchange(default_ex, {})
+        # 2026-08-05T09:55+08:00 数据源切换：market="Crypto" 默认实例（图表/回测/
+        # agent /price 共用）从币安现货切 USDⓈ-M 永续（binance→binanceusdm），
+        # 与 TradingView ETHUSDT.P 口径对齐；非 binance 默认交易所行为不变。
+        if default_ex == "binance":
+            self._scoped_exchange_id = default_ex
+            self._scoped_market_type = "swap"
+            self._init_ccxt_exchange("binanceusdm", {})
+        else:
+            self._scoped_exchange_id = ""
+            self._scoped_market_type = "spot"
+            self._init_ccxt_exchange(default_ex, {})
 
     @classmethod
     def for_exchange(cls, exchange_id: str, market_type: str = "swap") -> "CryptoDataSource":
